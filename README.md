@@ -3,7 +3,7 @@ I have experimented to come up with a method to debias a [random forest](https:/
 
 ## Method
 
-A random forest model trained for binary classification problem has many trees in the ensemble. The majority vote of trees might result with biased labels against a sensitive variable (race, gender). However, since random forest bootstraps the data and picks random features in each tree, the degree of bias of the decisions of the single trees will be different than of the ensemble.
+A random forest model trained for binary classification problem has many trees in the ensemble. The majority vote of trees might result with biased labels against a sensitive variable (race, gender). However, since random forest bootstraps the data and picks random features in each tree, the degree of bias of the decisions of the single trees will be different than of the ensemble. We evaluate the decisions of each trees against the fairness criterion and assign weights accordingly.
 
 ## Fairness Criterion
 
@@ -18,3 +18,7 @@ def diff_eoo(y,pred,disc): #Function to calculate difference of equality of oppo
     opp_dis=data[(data.disc==0) & (data.y==1) & (data.pred==1)].shape[0]/data[(data.disc==0) & (data.y==1)].shape[0]
     return round(opp_adv-opp_dis,2) #Difference of equality of opportunity
 ```
+
+## Findings
+
+The bootstrap sampling with replacement of data in each tree randomizes the amount of bias of the trees. However, the random subspace of features does not guarantee fair trees in the ensemble. The reason for that is all the features may bring a historical bias (such as low pay of women) which eventually results as the bias of the model. Even if we randomly pick the features, the bias will by carry-overed in the model. As long as the node splits optimize for accuracy, the theoretical fairness could not be guaranteed by only choosing features randomly. Though, in many scenarios, this method will punish the trees with the biased features, and reward the trees with features indifferent to the discriminative variable. Because in many scenarios there will be features in the dataset with less or no bias.
